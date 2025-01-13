@@ -11,8 +11,7 @@
     Execution:
         When the script is run directly (not imported as a module), it will execute the main() function.
 """
-
-
+-- That's new
 def get_user_name():
     return input("Please enter your name: ")
 
