@@ -1,0 +1,123 @@
+class FoodChatbot:
+    def __init__(self):
+        self.menu = {
+            "1": {"item": "Pizza", "price": 10.99, "customizable": True},
+            "2": {"item": "Burger", "price": 5.99, "customizable": False},
+            "3": {"item": "Pasta", "price": 8.99, "customizable": False},
+            "4": {"item": "Salad", "price": 4.99, "customizable": True},
+            "5": {"item": "Soda", "price": 1.99, "customizable": False},
+        }
+        self.toppings = {
+            "Pizza": ["Pepperoni", "Mushrooms", "Extra Cheese", "Olives"],
+            "Salad": ["Grilled Chicken", "Avocado", "Croutons", "Extra Dressing"],
+        }
+        self.order = []
+        self.order_history = []
+        self.user_name = ""
+
+    def greet(self):
+        self.user_name = input("Hello! Welcome to FoodBot. What's your name? ")
+        print(f"Hi {self.user_name}! How can I assist you today?")
+
+    def show_menu(self):
+        print("\nHere's our menu:")
+        for key, value in self.menu.items():
+            print(f"{key}. {value['item']} - ${value['price']:.2f}")
+
+    def customize_item(self, item_name):
+        if item_name in self.toppings:
+            print(f"\nCustomize your {item_name}:")
+            for i, topping in enumerate(self.toppings[item_name], 1):
+                print(f"{i}. {topping}")
+            choices = input("Enter the numbers of toppings you'd like (comma-separated, e.g., 1,3): ")
+            selected_toppings = [self.toppings[item_name][int(i)-1] for i in choices.split(",") if i.isdigit()]
+            return selected_toppings
+        return []
+
+    def take_order(self):
+        while True:
+            self.show_menu()
+            choice = input("\nEnter the number of the item you'd like to order (or type 'done' to finish): ").strip()
+            if choice.lower() == 'done':
+                break
+            if choice in self.menu:
+                item = self.menu[choice]
+                if item["customizable"]:
+                    toppings = self.customize_item(item["item"])
+                    item["toppings"] = toppings
+                self.order.append(item)
+                print(f"\n{item['item']} added to your order.")
+            else:
+                print("Invalid choice. Please try again.")
+
+    def get_delivery_details(self):
+        print("\nLet's get your delivery details!")
+        address = input("Enter your delivery address: ")
+        time = input("Enter your preferred delivery time (e.g., 7:00 PM): ")
+        return address, time
+
+    def confirm_order(self):
+        if not self.order:
+            print("\nYou haven't ordered anything yet.")
+            return
+
+        print("\nYour order:")
+        total = 0
+        for item in self.order:
+            print(f"{item['item']}", end="")
+            if "toppings" in item and item["toppings"]:
+                print(f" with {', '.join(item['toppings'])}", end="")
+            print(f" - ${item['price']:.2f}")
+            total += item["price"]
+        print(f"Total: ${total:.2f}")
+
+        confirm = input("\nWould you like to confirm your order? (yes/no): ").lower()
+        if confirm == 'yes':
+            address, time = self.get_delivery_details()
+            print("\nProcessing payment...")
+            print("Payment successful!")
+            print(f"\nThank you, {self.user_name}! Your order will be delivered to {address} by {time}.")
+            self.order_history.append(self.order.copy())
+            self.order.clear()
+        else:
+            print("\nYour order has been canceled.")
+
+    def show_order_history(self):
+        if not self.order_history:
+            print("\nYou have no past orders.")
+            return
+
+        print("\nYour order history:")
+        for i, order in enumerate(self.order_history, 1):
+            print(f"\nOrder {i}:")
+            total = 0
+            for item in order:
+                print(f"{item['item']}", end="")
+                if "toppings" in item and item["toppings"]:
+                    print(f" with {', '.join(item['toppings'])}", end="")
+                print(f" - ${item['price']:.2f}")
+                total += item["price"]
+            print(f"Total: ${total:.2f}")
+
+    def goodbye(self):
+        print(f"\nThank you for using FoodBot, {self.user_name}. Have a great day! Goodbye!")
+
+    def run(self):
+        self.greet()
+        while True:
+            action = input("\nWhat would you like to do? (order/history/exit): ").lower()
+            if action == 'order':
+                self.take_order()
+                self.confirm_order()
+            elif action == 'history':
+                self.show_order_history()
+            elif action == 'exit':
+                self.goodbye()
+                break
+            else:
+                print("Invalid choice. Please try again.")
+
+# Run the chatbot
+if __name__ == "__main__":
+    chatbot = FoodChatbot()
+    chatbot.run()
